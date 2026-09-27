@@ -1,0 +1,49 @@
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+exclude = [
+    ".venv",
+    "__pycache__",
+    "*.pyc",
+    "migrations",
+    "sample_data",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B"]
+ignore = [
+    "E501",   # line too long — handled by formatter
+    "B008",   # function call in default arg (FastAPI Depends pattern)
+    "N818",   # exception name suffix — not always applicable
+    "UP007",  # X | Y union syntax — prefer Optional for clarity
+]
+
+[tool.ruff.lint.per-file-ignores]
+"backend/tests/*" = ["F401", "E402"]
+
+[tool.mypy]
+python_version = "3.13"
+warn_unused_imports = true
+warn_return_any = false
+ignore_missing_imports = true
+no_strict_optional = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["backend/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.coverage.run]
+source = ["backend/app"]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/migrations/*",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+fail_under = 70

@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS — Enterprise Agentic Document Intelligence Platform</title>
+    <meta name="description" content="Production Enterprise RAG, Hybrid Retrieval, Reranking, Agentic Workflows and Grounding Verification Platform.">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div>
+                <div class="brand">
+                    <div class="brand-logo">N</div>
+                    <div>
+                        <div class="brand-title">NEXUS</div>
+                        <div class="brand-tag">Enterprise GenAI</div>
+                    </div>
+                </div>
+
+                <nav class="nav-menu">
+                    <a class="nav-item active" data-view="dashboard-view">
+                        <span>📊</span> Dashboard
+                    </a>
+                    <a class="nav-item" data-view="documents-view">
+                        <span>📁</span> Document Registry
+                    </a>
+                    <a class="nav-item" data-view="search-view">
+                        <span>🔍</span> Hybrid Search Studio
+                    </a>
+                    <a class="nav-item" data-view="chat-view">
+                        <span>💬</span> RAG Chat & Agents
+                    </a>
+                    <a class="nav-item" data-view="compare-view">
+                        <span>⚖️</span> Compare & Conflicts
+                    </a>
+                    <a class="nav-item" data-view="eval-view">
+                        <span>📈</span> Evaluation & Experiments
+                    </a>
+                    <a class="nav-item" data-view="memory-view">
+                        <span>🧠</span> Memory & Sessions
+                    </a>
+                    <a class="nav-item" data-view="system-view">
+                        <span>⚙️</span> System Metrics & Logs
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Active User Profile Card -->
+            <div class="user-profile-card">
+                <div class="user-avatar" id="user-avatar-text">A</div>
+                <div class="user-info">
+                    <div class="user-name" id="user-name-text">System Admin</div>
+                    <span class="user-role-badge" id="user-role-text">Admin</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <div class="main-wrapper">
+            <!-- Header Bar -->
+            <header class="header-bar">
+                <div class="page-title-box">
+                    <h1 id="page-heading">Enterprise Dashboard</h1>
+                </div>
+                <div class="header-actions">
+                    <span style="font-size: 12px; color: var(--text-secondary);">RBAC Persona Simulator:</span>
+                    <select id="role-simulator" class="role-selector">
+                        <option value="admin@nexus.com">System Admin (Full Access)</option>
+                        <option value="employee@nexus.com">Employee (Public / Internal)</option>
+                        <option value="hr@nexus.com">HR Manager (HR Restricted)</option>
+                        <option value="finance@nexus.com">Finance Lead (Finance Restricted)</option>
+                        <option value="security@nexus.com">Security Officer (Confidential)</option>
+                    </select>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="content-area">
+
+                <!-- 1. DASHBOARD VIEW -->
+                <section id="dashboard-view" class="view-panel active">
+                    <div class="grid-4" style="margin-bottom: 24px;">
+                        <div class="stat-card">
+                            <div class="stat-icon">📁</div>
+                            <div>
+                                <div class="stat-label">Total Documents</div>
+                                <div class="stat-value" id="stat-doc-count">0</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🧩</div>
+                            <div>
+                                <div class="stat-label">Indexed Chunks</div>
+                                <div class="stat-value" id="stat-chunk-count">0</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🎯</div>
+                            <div>
+                                <div class="stat-label">Grounding Accuracy</div>
+                                <div class="stat-value" style="color: var(--accent-teal);" id="stat-grounding">98.4%</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">⚡</div>
+                            <div>
+                                <div class="stat-label">Avg Query Latency</div>
+                                <div class="stat-value" style="color: var(--primary);" id="stat-latency">312 ms</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Demo Scenarios Bar -->
+                    <div class="card" style="background: linear-gradient(135deg, rgba(31, 41, 61, 0.9), rgba(17, 24, 39, 0.9));">
+                        <div class="card-header">
+                            <h3 class="card-title">⚡ Enterprise Demo Scenarios</h3>
+                        </div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                            <button class="btn btn-secondary" onclick="triggerDemo(1)">Demo 1: Travel Reimbursement Limit</button>
+                            <button class="btn btn-secondary" onclick="triggerDemo(2)">Demo 2: Compare 2024 & 2025 Policies</button>
+                            <button class="btn btn-secondary" onclick="triggerDemo(3)">Demo 3: Detect Remote Work Conflicts</button>
+                            <button class="btn btn-secondary" onclick="triggerDemo(4)">Demo 4: Analyze Cybersecurity 2025 Changes</button>
+                            <button class="btn btn-secondary" onclick="triggerDemo(7)">Demo 7: Test RBAC Security Denial</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Recent Ingested Enterprise Documents</h3>
+                            <button class="btn btn-primary" onclick="switchView('documents-view')">+ Upload Document</button>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Filename</th>
+                                        <th>Department</th>
+                                        <th>Version</th>
+                                        <th>Access Level</th>
+                                        <th>Pages</th>
+                                        <th>Chunks</th>
+                                        <th>Ingested At</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-docs-tbody">
+                                    <tr><td colspan="7" style="text-align:center; color: var(--text-muted);">Loading documents...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. DOCUMENT INTELLIGENCE VIEW -->
+                <section id="documents-view" class="view-panel">
+                    <div class="grid-2">
+                        <!-- Upload Card -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Upload & Ingest Document</h3>
+                            </div>
+                            <div class="dropzone" id="pdf-dropzone">
+                                <div class="dropzone-icon">📥</div>
+                                <p style="font-weight: 600; margin-bottom: 6px;">Drag & Drop Enterprise PDF Here</p>
+                                <p style="font-size: 12px; color: var(--text-muted);">Or click to select file (PDF up to 25MB)</p>
+                                <input type="file" id="file-input" style="display: none;" accept=".pdf,.txt,.md">
+                            </div>
+                            
+                            <div style="margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div>
+                                    <label style="font-size: 11px; color: var(--text-secondary);">Department Override:</label>
+                                    <select id="meta-dept" class="role-selector" style="width: 100%; margin-top: 4px;">
+                                        <option value="">Auto-Detect</option>
+                                        <option value="Finance">Finance</option>
+                                        <option value="HR">HR</option>
+                                        <option value="Security">Security</option>
+                                        <option value="General">General</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="font-size: 11px; color: var(--text-secondary);">Access Level Authorization:</label>
+                                    <select id="meta-access" class="role-selector" style="width: 100%; margin-top: 4px;">
+                                        <option value="Internal">Internal</option>
+                                        <option value="Public">Public</option>
+                                        <option value="Restricted">Restricted</option>
+                                        <option value="Confidential">Confidential</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="upload-status" style="margin-top: 14px; font-size: 13px; font-weight: 500;"></div>
+                        </div>
+
+                        <!-- Pipeline Info -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Pipeline Architecture Trace</h3>
+                            </div>
+                            <div class="trace-box" style="height: 220px;" id="pipeline-log">
+[System] Ingestion pipeline initialized.
+[Parser] Ready for PyMuPDF / pdfplumber structural parsing.
+[Security] Prompt injection scanner online.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Document Registry</h3>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Document Name</th>
+                                        <th>Type</th>
+                                        <th>Department</th>
+                                        <th>Version</th>
+                                        <th>Access Level</th>
+                                        <th>Pages</th>
+                                        <th>Chunks</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="all-docs-tbody">
+                                    <tr><td colspan="8" style="text-align:center; color: var(--text-muted);">Loading registry...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. SEARCH STUDIO VIEW -->
+                <section id="search-view" class="view-panel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Hybrid Retrieval & Reranking Studio</h3>
+                        </div>
+                        <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                            <input type="text" id="search-input" class="role-selector" style="flex: 1; padding: 12px; font-size: 14px;" placeholder="Enter search query (e.g. international travel allowance limit)...">
+                            <select id="search-mode" class="role-selector" style="width: 200px;">
+                                <option value="hybrid_rerank">Hybrid + Reranking (Best)</option>
+                                <option value="hybrid">Hybrid RRF</option>
+                                <option value="dense">Dense Vector Only</option>
+                                <option value="bm25">BM25 Lexical Only</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="runSearchQuery()">Search</button>
+                        </div>
+
+                        <div id="search-results-box" style="margin-top: 20px;">
+                            <p style="color: var(--text-muted); font-size: 13px;">Execute a search query above to inspect candidates, scores, and reranked positions.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. RAG CHAT & AGENT VIEW -->
+                <section id="chat-view" class="view-panel">
+                    <div class="grid-2">
+                        <!-- Chat Box -->
+                        <div class="card" style="display: flex; flex-direction: column; height: 600px;">
+                            <div class="card-header">
+                                <h3 class="card-title">Agentic RAG Assistant</h3>
+                                <span class="badge badge-public" id="chat-status-badge">Grounding Active</span>
+                            </div>
+                            <div id="chat-messages" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; padding-right: 8px;">
+                                <div style="background: var(--bg-surface-elevated); padding: 14px; border-radius: var(--radius-md); border-left: 3px solid var(--primary);">
+                                    <p style="font-size: 13px; font-weight: 500;">👋 Hello! I am the NEXUS Agent. Ask me questions about enterprise policies, request document comparisons, conflict checks, or executive reports.</p>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 10px; margin-top: 16px;">
+                                <input type="text" id="chat-input" class="role-selector" style="flex: 1; padding: 12px; font-size: 14px;" placeholder="Ask a question or issue a command..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+                                <button class="btn btn-primary" onclick="sendChatMessage()">Send Query</button>
+                            </div>
+                        </div>
+
+                        <!-- Real-time Agent Trace & Sources -->
+                        <div style="display: flex; flex-direction: column; gap: 20px;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Agent Execution Step Trace</h3>
+                                </div>
+                                <div class="trace-box" id="agent-trace-box" style="height: 220px;">
+[Agent] Standing by for query.
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Verified Source Citations</h3>
+                                </div>
+                                <div id="citations-box" style="display: flex; flex-direction: column; gap: 10px; max-height: 200px; overflow-y: auto;">
+                                    <p style="font-size: 12px; color: var(--text-muted);">No query executed yet.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. COMPARE & CONFLICTS VIEW -->
+                <section id="compare-view" class="view-panel">
+                    <div class="grid-2" style="margin-bottom: 24px;">
+                        <!-- Version Comparison Card -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Compare Document Versions</h3>
+                            </div>
+                            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 14px;">Select two versions to generate a delta comparison matrix of changed rates, allowances, and rules.</p>
+                            <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="runDocumentComparison()">Compare Travel Policy 2024 vs 2025</button>
+                        </div>
+
+                        <!-- Conflict Detector Card -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Policy Conflict Detector</h3>
+                            </div>
+                            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 14px;">Searches across all department policies to identify contradictory statements.</p>
+                            <button class="btn btn-secondary" style="width: 100%; justify-content: center; border-color: var(--accent-amber); color: var(--accent-amber);" onclick="runConflictDetector()">Detect Remote Work Contradictions</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Analysis & Comparison Results</h3>
+                        </div>
+                        <div id="compare-results-box">
+                            <p style="color: var(--text-muted); font-size: 13px;">Click a button above to run version comparison or conflict analysis.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. EVALUATION VIEW -->
+                <section id="eval-view" class="view-panel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">ML Retrieval & Generation Benchmark Suite</h3>
+                            <button class="btn btn-primary" onclick="runBenchmarkEvaluation()">▶ Run Benchmark Experiment</button>
+                        </div>
+                        
+                        <div class="grid-4" style="margin-bottom: 20px;">
+                            <div class="stat-card">
+                                <div>
+                                    <div class="stat-label">Recall@5</div>
+                                    <div class="stat-value" id="eval-recall">1.000</div>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div>
+                                    <div class="stat-label">Precision@5</div>
+                                    <div class="stat-value" id="eval-precision">0.400</div>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div>
+                                    <div class="stat-label">MRR</div>
+                                    <div class="stat-value" id="eval-mrr">1.000</div>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div>
+                                    <div class="stat-label">Faithfulness</div>
+                                    <div class="stat-value" style="color: var(--accent-teal);" id="eval-faith">0.960</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Experiment Run</th>
+                                        <th>Retrieval Strategy</th>
+                                        <th>Recall@5</th>
+                                        <th>Precision@5</th>
+                                        <th>MRR</th>
+                                        <th>NDCG</th>
+                                        <th>Faithfulness</th>
+                                        <th>Avg Latency</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="eval-runs-tbody">
+                                    <tr><td colspan="8" style="text-align:center; color: var(--text-muted);">Loading benchmark runs...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 7. SYSTEM VIEW -->
+                <section id="system-view" class="view-panel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">System Observability & Token Metrics</h3>
+                        </div>
+                        <div id="system-health-box" class="trace-box" style="margin-bottom: 20px;">
+                            Loading system telemetry...
+                        </div>
+
+                        <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">Query Audit Log & Token Costs</h4>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>Query</th>
+                                        <th>Intent</th>
+                                        <th>Tokens</th>
+                                        <th>Latency</th>
+                                        <th>Est. Cost</th>
+                                        <th>Grounding</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="audit-logs-tbody">
+                                    <tr><td colspan="7" style="text-align:center; color: var(--text-muted);">Loading audit logs...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Phase 3: Enhanced Observability Analytics -->
+                    <div class="card" style="margin-top: 20px;">
+                        <div class="card-header">
+                            <div class="card-title">📈 Live Observability — Phase 3 Analytics</div>
+                        </div>
+                        <div id="timeseries-chart-container" style="padding: 16px; background: var(--bg-surface); border-radius: var(--radius-md); margin-bottom: 16px;">
+                            <div style="text-align:center;color:var(--text-muted);padding:40px;">Loading chart...</div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <div style="background: var(--bg-surface); border-radius: var(--radius-md); padding: 16px;">
+                                <div id="intent-distribution-container"><div style="color:var(--text-muted);font-size:12px;">Loading...</div></div>
+                            </div>
+                            <div style="background: var(--bg-surface); border-radius: var(--radius-md); padding: 16px;">
+                                <div id="embedding-backend-container"><div style="color:var(--text-muted);font-size:12px;">Loading...</div></div>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div style="background: var(--bg-surface); border-radius: var(--radius-md); padding: 16px;">
+                                <div id="latency-percentiles-container"><div style="color:var(--text-muted);font-size:12px;">Loading...</div></div>
+                            </div>
+                            <div style="background: var(--bg-surface); border-radius: var(--radius-md); padding: 16px;">
+                                <div id="model-usage-container"><div style="color:var(--text-muted);font-size:12px;">Loading...</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- 8. CONVERSATION MEMORY VIEW -->
+                <section id="memory-view" class="view-panel">
+                    <div class="card" style="padding: 0; overflow: hidden;">
+                        <div style="display: grid; grid-template-columns: 240px 1fr; height: 600px;">
+                            <!-- Sessions Sidebar -->
+                            <div style="background: var(--bg-surface); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 16px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                                    <span style="font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Conversations</span>
+                                    <button class="btn" style="padding: 5px 10px; font-size: 11px;" onclick="createNewSession()" id="new-session-btn">+ New</button>
+                                </div>
+                                <div id="sessions-list" style="flex: 1; overflow-y: auto;">
+                                    <div style="color: var(--text-muted); font-size: 12px;">Loading sessions...</div>
+                                </div>
+                                <!-- Memory Toggle -->
+                                <div style="border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 8px;">
+                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; color: var(--text-secondary);">
+                                        <input type="checkbox" id="use-memory-toggle" checked
+                                               style="width: 14px; height: 14px; cursor: pointer; accent-color: var(--primary);">
+                                        Use Conversation Memory
+                                    </label>
+                                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Prior turns injected: <span id="memory-turns-used">0</span></div>
+                                </div>
+                            </div>
+                            <!-- Chat Panel -->
+                            <div style="display: flex; flex-direction: column;">
+                                <!-- Messages Area -->
+                                <div id="memory-chat-messages"
+                                     style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 4px;">
+                                    <div style="text-align: center; color: var(--text-muted); padding: 60px 20px; font-size: 13px;">
+                                        <div style="font-size: 32px; margin-bottom: 12px;">🧠</div>
+                                        <div style="font-weight: 600; margin-bottom: 6px;">Multi-Turn Conversation Memory</div>
+                                        <div style="font-size: 12px;">Create or select a session, then ask follow-up questions.<br>NEXUS remembers the last 6 turns of context.</div>
+                                    </div>
+                                </div>
+                                <!-- Input Bar -->
+                                <div style="padding: 16px; border-top: 1px solid var(--border-color); display: flex; gap: 10px;">
+                                    <input id="memory-chat-input"
+                                           type="text"
+                                           class="search-input"
+                                           placeholder="Ask a follow-up question…"
+                                           style="flex: 1;"
+                                           onkeydown="if(event.key==='Enter') sendMemoryChatMessage()">
+                                    <button class="btn" onclick="sendMemoryChatMessage()" id="memory-send-btn">Send ⚡</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Citation & Document Inspector Modal -->
+    <div id="citation-modal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 18px;">📄</span>
+                    <h3 id="modal-doc-title" class="modal-title">Document Citation Inspector</h3>
+                </div>
+                <button class="modal-close-btn" onclick="closeCitationModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <div>
+                        <span id="modal-doc-page" style="font-weight: 600; font-size: 13px; color: var(--primary);">Page 1</span>
+                        <span id="modal-doc-section" style="font-size: 13px; color: var(--text-secondary); margin-left: 8px;">Section: General</span>
+                    </div>
+                    <span id="modal-doc-badge" class="badge badge-internal">Internal</span>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                        <span style="color: var(--text-secondary);">Grounding Verification Confidence</span>
+                        <span id="modal-grounding-pct" style="color: var(--accent-teal); font-weight: 600;">96%</span>
+                    </div>
+                    <div class="grounding-meter-bar">
+                        <div id="modal-grounding-fill" class="grounding-meter-fill" style="width: 96%;"></div>
+                    </div>
+                </div>
+
+                <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 6px;">VERIFIED SOURCE PASSAGE EXCERPT:</h4>
+                <div id="modal-doc-excerpt" class="citation-highlight-box">
+                    Loading passage excerpt...
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-secondary" onclick="closeCitationModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

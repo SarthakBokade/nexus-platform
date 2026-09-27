@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  nexus-backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=sqlite+aiosqlite:///./nexus.db
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - QDRANT_IN_MEMORY=False
+    depends_on:
+      - qdrant
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+volumes:
+  qdrant_data:

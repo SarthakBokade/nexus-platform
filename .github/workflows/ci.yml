@@ -1,0 +1,162 @@
+name: NEXUS Platform CI/CD Pipeline v2
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  # ------------------------------------------------------------------ #
+  # Stage 1: Code Quality Gates                                          #
+  # ------------------------------------------------------------------ #
+  lint:
+    name: "Lint & Type Check"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Linting Tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff mypy types-passlib
+
+      - name: Ruff Lint (style + unused imports + complexity)
+        run: |
+          ruff check backend/ --select E,F,W,I,N,UP,B --ignore E501 --output-format=github
+
+      - name: Ruff Format Check
+        run: |
+          ruff format --check backend/
+
+      - name: MyPy Type Check (non-blocking)
+        run: |
+          mypy backend/app --ignore-missing-imports --no-strict-optional || true
+
+  # ------------------------------------------------------------------ #
+  # Stage 2: Unit & Integration Tests with Coverage                      #
+  # ------------------------------------------------------------------ #
+  test:
+    name: "Tests + Coverage Report"
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest-cov coverage
+
+      - name: Generate Sample Data
+        run: |
+          python sample_data/generate_sample_pdfs.py
+
+      - name: Run All Tests with Coverage
+        run: |
+          pytest backend/tests \
+            --cov=backend/app \
+            --cov-report=term-missing \
+            --cov-report=xml:coverage.xml \
+            --cov-report=html:htmlcov \
+            --cov-fail-under=70 \
+            -v
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: |
+            coverage.xml
+            htmlcov/
+
+      - name: Coverage Summary
+        run: |
+          python -c "
+          import xml.etree.ElementTree as ET
+          tree = ET.parse('coverage.xml')
+          root = tree.getroot()
+          line_rate = float(root.attrib.get('line-rate', 0)) * 100
+          print(f'📊 Total Coverage: {line_rate:.1f}%')
+          "
+
+  # ------------------------------------------------------------------ #
+  # Stage 3: Security Scan                                               #
+  # ------------------------------------------------------------------ #
+  security:
+    name: "Security Scan"
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Bandit
+        run: pip install bandit
+
+      - name: Run Bandit Security Scan
+        run: |
+          bandit -r backend/app \
+            -ll \
+            -x backend/app/db,backend/app/api \
+            --format json \
+            --output bandit_report.json || true
+          bandit -r backend/app -ll -x backend/app/db,backend/app/api || true
+
+      - name: Upload Security Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-report
+          path: bandit_report.json
+
+  # ------------------------------------------------------------------ #
+  # Stage 4: Docker Build & Smoke Test                                   #
+  # ------------------------------------------------------------------ #
+  docker-build:
+    name: "Docker Build & Smoke Test"
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: |
+          docker build -t nexus-platform:ci-${{ github.sha }} -f backend/Dockerfile .
+
+      - name: Smoke Test — Container Health
+        run: |
+          docker run -d \
+            --name nexus-smoke \
+            -p 8000:8000 \
+            -e DATABASE_URL="sqlite+aiosqlite:///./nexus.db" \
+            nexus-platform:ci-${{ github.sha }}
+          sleep 10
+          curl --retry 5 --retry-delay 2 -f http://localhost:8000/api/v1/health || exit 1
+          docker logs nexus-smoke
+          docker stop nexus-smoke
+
+      - name: Tag & Push (main branch only)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          echo "📦 Image ready for push: nexus-platform:${{ github.sha }}"
+          # Uncomment below for ECR push:
+          # aws ecr get-login-password --region us-east-1 | docker login ...
+          # docker tag nexus-platform:ci-${{ github.sha }} <ecr-uri>:latest
+          # docker push <ecr-uri>:latest

@@ -95,13 +95,21 @@ app.include_router(health_router, prefix=settings.API_V1_STR)
 app.include_router(conversations_router, prefix=settings.API_V1_STR)
 
 # Serve Frontend Static Directory
-frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "..", "frontend")
+# Use relative path — works both locally and on Render
+import pathlib
+_repo_root = pathlib.Path(__file__).parent.parent.parent  # backend/app/main.py → repo root
+frontend_dir = str(_repo_root / "frontend")
+if not os.path.exists(frontend_dir):
+    frontend_dir = os.path.join(os.getcwd(), "frontend")
+
 if os.path.exists(frontend_dir):
     app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
 
-    @app.get("/")
-    async def serve_index():
-        index_path = os.path.join(frontend_dir, "index.html")
-        if os.path.exists(index_path):
-            return FileResponse(index_path)
-        return {"message": f"NEXUS Backend Running ({settings.VERSION})"}
+
+@app.get("/")
+async def serve_index():
+    index_path = os.path.join(frontend_dir, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    return {"message": f"NEXUS Backend Running ({settings.VERSION})", "status": "online"}
+

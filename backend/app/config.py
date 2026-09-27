@@ -17,8 +17,8 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "sqlite+aiosqlite:///./nexus.db"
     
-    # Storage
-    STORAGE_DIR: str = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "storage")
+    # Storage — relative path works on Render and locally
+    STORAGE_DIR: str = "./backend/storage"
     UPLOAD_MAX_SIZE_MB: int = 25
     ALLOWED_EXTENSIONS: List[str] = ["pdf", "txt", "md"]
     
@@ -42,6 +42,10 @@ class Settings(BaseSettings):
     COST_PER_OUTPUT_TOKEN_HAIKU: float = 0.00000125
     COST_PER_INPUT_TOKEN_SONNET: float = 0.000003
     COST_PER_OUTPUT_TOKEN_SONNET: float = 0.000015
+
+    # SageMaker Embeddings (Phase 3)
+    USE_SAGEMAKER_EMBEDDINGS: bool = False
+    SAGEMAKER_ENDPOINT_NAME: str = "nexus-embedder-v1"
     
     model_config = SettingsConfigDict(
         env_file=".env",

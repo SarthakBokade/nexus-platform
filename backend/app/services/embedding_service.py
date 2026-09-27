@@ -94,11 +94,11 @@ class EmbeddingService:
             except Exception as e:
                 logger.warning(f"Bedrock init failed: {e}. Falling back to local.")
 
-        # Local sentence-transformers
+        # Local sentence-transformers (lazy loaded)
         if HAS_ST:
-            self._local_model = SentenceTransformer(self.LOCAL_MODEL_NAME)
+            self._local_model = None
             self._active_backend = "local"
-            logger.info(f"Embedding backend: local sentence-transformers ({self.LOCAL_MODEL_NAME})")
+            logger.info(f"Embedding backend configured: local sentence-transformers ({self.LOCAL_MODEL_NAME}, lazy)")
         else:
             self._active_backend = "zero_vector"
             logger.warning("No embedding backend available. Using zero-vectors (retrieval will not work).")
@@ -117,9 +117,18 @@ class EmbeddingService:
             return self._embed_sagemaker(texts)
         elif self._active_backend == "bedrock_titan":
             return [self._embed_bedrock_titan(t) for t in texts]
-        elif self._active_backend == "local" and self._local_model:
-            embeddings = self._local_model.encode(texts, normalize_embeddings=True)
-            return embeddings.tolist()
+        elif self._active_backend == "local":
+            if self._local_model is None and HAS_ST:
+                try:
+                    from backend.app.retrieval.dense import DenseRetriever
+                    self._local_model = DenseRetriever._shared_model or SentenceTransformer(self.LOCAL_MODEL_NAME)
+                    DenseRetriever._shared_model = self._local_model
+                except Exception as e:
+                    logger.warning(f"Could not load SentenceTransformer in EmbeddingService: {e}")
+            if self._local_model:
+                embeddings = self._local_model.encode(texts, normalize_embeddings=True)
+                return embeddings.tolist()
+            return [[0.0] * self.EMBEDDING_DIM for _ in texts]
         else:
             # Zero-vector fallback (should never hit in normal operation)
             return [[0.0] * self.EMBEDDING_DIM for _ in texts]

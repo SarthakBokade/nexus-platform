@@ -16,13 +16,20 @@ class Reranker:
     Re-scores Top-20 candidates and returns Top-K highest relevance chunks.
     """
 
+    _shared_ranker = None
+
     def __init__(self):
-        self.ranker = None
-        if HAS_FLASHRANK:
+        pass
+
+    @property
+    def ranker(self):
+        if Reranker._shared_ranker is None and HAS_FLASHRANK:
             try:
-                self.ranker = Ranker(model_name="ms-marco-TinyBERT-L-2-v2")
+                logger.info("Loading FlashRank ranker 'ms-marco-TinyBERT-L-2-v2'...")
+                Reranker._shared_ranker = Ranker(model_name="ms-marco-TinyBERT-L-2-v2")
             except Exception as e:
                 logger.warning(f"Could not load FlashRank ranker: {e}")
+        return Reranker._shared_ranker
 
     def rerank(self, query: str, candidate_chunks: List[Dict[str, Any]], top_k: int = 5) -> List[Dict[str, Any]]:
         if not candidate_chunks:

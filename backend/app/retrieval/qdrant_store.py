@@ -22,10 +22,20 @@ class QdrantVectorStore:
 
     COLLECTION_NAME = "nexus_documents"
     VECTOR_DIM = 384
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
 
     def __init__(self):
+        if getattr(self, "_initialized", False):
+            return
         self.client: Optional[Any] = None
         self._initialize_client()
+        self._initialized = True
 
     def _initialize_client(self):
         if not HAS_QDRANT:

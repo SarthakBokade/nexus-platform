@@ -24,15 +24,21 @@ class DenseRetriever:
     Supports Qdrant Vector Engine or local numpy cosine similarity fallback.
     """
 
+    _shared_model = None
+
     def __init__(self, model_name: str = "sentence-transformers/all-MiniLM-L6-v2"):
         self.model_name = model_name
-        self.model = None
         self.qdrant = QdrantVectorStore()
-        if HAS_SENTENCE_TRANSFORMERS:
+
+    @property
+    def model(self):
+        if DenseRetriever._shared_model is None and HAS_SENTENCE_TRANSFORMERS:
             try:
-                self.model = SentenceTransformer(model_name)
+                logger.info(f"Loading SentenceTransformer '{self.model_name}'...")
+                DenseRetriever._shared_model = SentenceTransformer(self.model_name)
             except Exception as e:
-                logger.warning(f"Could not load SentenceTransformer '{model_name}': {e}")
+                logger.warning(f"Could not load SentenceTransformer '{self.model_name}': {e}")
+        return DenseRetriever._shared_model
 
     def embed_text(self, text: str) -> List[float]:
         """Generates embedding vector for query or chunk."""

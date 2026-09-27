@@ -22,8 +22,4 @@ services:
         generateValue: true
       - key: PYTHON_VERSION
         value: "3.13.1"
-    disk:
-      name: nexus-data
-      mountPath: /opt/render/project/src
-      sizeGB: 1
     healthCheckPath: /api/v1/health

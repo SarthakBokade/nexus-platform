@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: nexus-platform
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: |
+      pip install --upgrade pip && pip install -r requirements.txt && python sample_data/generate_sample_pdfs.py
+    startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: DATABASE_URL
+        value: sqlite+aiosqlite:///./nexus_prod.db
+      - key: QDRANT_IN_MEMORY
+        value: "true"
+      - key: USE_AWS_BEDROCK
+        value: "false"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: "3.13.1"
+    disk:
+      name: nexus-data
+      mountPath: /opt/render/project/src
+      sizeGB: 1
+    healthCheckPath: /api/v1/health

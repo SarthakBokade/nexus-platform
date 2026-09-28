@@ -1,0 +1,13 @@
+run = "bash run_replit.sh"
+entrypoint = "backend/app/main.py"
+
+[nix]
+channel = "stable-24_05"
+
+[deployment]
+run = ["sh", "-c", "python sample_data/generate_sample_pdfs.py && uvicorn backend.app.main:app --host 0.0.0.0 --port 8080"]
+deploymentTarget = "cloudrun"
+
+[[ports]]
+localPort = 8080
+externalPort = 80
